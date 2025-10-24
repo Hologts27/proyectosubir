@@ -277,7 +277,7 @@
       let guardadosSeries = [];
       let guardadosPeliculas = [];
       try {
-        const resSeries = await fetch(`http://localhost:3001/guardados?user_id=${loggedInUser.id}`, {
+        const resSeries = await fetch(`http://vps5.eas-x.com:13086/guardados?user_id=${loggedInUser.id}`, {
           headers: { 'Authorization': 'Bearer ' + token }
         });
         guardadosSeries = await resSeries.json();
@@ -285,7 +285,7 @@
         guardadosSeries = [];
       }
       try {
-        const resPeliculas = await fetch(`http://localhost:3001/guardados_peliculas?user_id=${loggedInUser.id}`, {
+        const resPeliculas = await fetch(`http://vps5.eas-x.com:13086/guardados_peliculas?user_id=${loggedInUser.id}`, {
           headers: { 'Authorization': 'Bearer ' + token }
         });
         guardadosPeliculas = await resPeliculas.json();
@@ -334,13 +334,13 @@
     }
     async function quitarGuardado(itemId, tipo) {
       if (tipo === 'serie') {
-        await safeFetch('http://localhost:3001/guardados', {
+        await safeFetch('http://vps5.eas-x.com:13086/guardados', {
           method: 'DELETE',
           headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
           body: JSON.stringify({ user_id: loggedInUser.id, serie_id: Number(itemId) })
         });
       } else {
-        await safeFetch('http://localhost:3001/guardados_peliculas', {
+        await safeFetch('http://vps5.eas-x.com:13086/guardados_peliculas', {
           method: 'DELETE',
           headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
           body: JSON.stringify({ user_id: loggedInUser.id, pelicula_id: Number(itemId) })
