@@ -229,7 +229,7 @@
         return;
       }
 
-      safeFetch('https://vps5.eas-x.com:3001/register_public', {
+      safeFetch('https://vps5.eas-x.com:443/register_public', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, email, password })
