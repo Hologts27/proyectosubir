@@ -674,7 +674,7 @@ async function fetchFavoritos(force = false) {
   if (!loggedInUser || !loggedInUser.id) return favoritos = [];
   if (favoritosCargados && !force) return favoritos;
   try {
-    const res = await safeFetch(`https://vps5.eas-x.com:13086/favoritos?user_id=${loggedInUser.id}`);
+    const res = await safeFetch(`https://proyectonode-cjl6.onrender.com/favoritos?user_id=${loggedInUser.id}`);
     favoritos = res;
     favoritosCargados = true;
   } catch (e) {
@@ -690,14 +690,14 @@ async function toggleFavorito(serie) {
   const fav = favoritos.find(f => f.id === serie.id);
   try {
     if (fav) {
-      await safeFetch('https://vps5.eas-x.com:13086/favoritos', {
+      await safeFetch('https://proyectonode-cjl6.onrender.com/favoritos', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ user_id: loggedInUser.id, serie_id: serie.id })
       });
       showToast(`Eliminaste "${serie.name}" de favoritos.`, 'fail');
     } else {
-      await safeFetch('https://vps5.eas-x.com:13086/favoritos', {
+      await safeFetch('https://proyectonode-cjl6.onrender.com/favoritos', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ user_id: loggedInUser.id, serie })
@@ -719,7 +719,7 @@ async function fetchGuardados(force = false) {
   if (!loggedInUser || !loggedInUser.id) return guardados = [];
   if (guardadosCargados && !force) return guardados;
   try {
-    const res = await safeFetch(`https://vps5.eas-x.com:13086/guardados?user_id=${loggedInUser.id}`);
+    const res = await safeFetch(`https://proyectonode-cjl6.onrender.com/guardados?user_id=${loggedInUser.id}`);
     guardados = res;
     guardadosCargados = true;
   } catch (e) {
@@ -733,14 +733,14 @@ async function toggleGuardado(serie) {
   if (!loggedInUser || !loggedInUser.id) return;
   const guardado = guardados.find(g => g.id === serie.id);
   if (guardado) {
-    await safeFetch('https://vps5.eas-x.com:13086/guardados', {
+    await safeFetch('https://proyectonode-cjl6.onrender.com/guardados', {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
       body: JSON.stringify({ user_id: loggedInUser.id, serie_id: serie.id })
     });
     showToast(`Eliminaste "${serie.name}" de ver más tarde.`, 'success');
   } else {
-    await safeFetch('https://vps5.eas-x.com:13086/guardados', {
+    await safeFetch('https://proyectonode-cjl6.onrender.com/guardados', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
       body: JSON.stringify({ user_id: loggedInUser.id, serie })
@@ -933,7 +933,7 @@ function updatePaginationControls() {
 document.getElementById('logout-btn').addEventListener('click', async () => {
   if (token) {
     try {
-      await fetch('https://vps5.eas-x.com:13086/logout', {
+      await fetch('https://proyectonode-cjl6.onrender.com/logout', {
         method: 'POST',
         headers: { 'Authorization': 'Bearer ' + token }
       });
@@ -960,7 +960,7 @@ function showToast(message, type = 'info', duration = 3500) {
 // Safe fetch wrapper para rutas protegidas (igual que peliculas.html)
 async function safeFetch(url, options = {}) {
   options.headers = options.headers || {};
-  if (url.startsWith('https://vps5.eas-x.com:13086')) {
+  if (url.startsWith('https://proyectonode-cjl6.onrender.com')) {
     options.headers['Authorization'] = 'Bearer ' + token;
   }
   try {

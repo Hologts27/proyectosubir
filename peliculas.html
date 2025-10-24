@@ -638,7 +638,7 @@
       if (!loggedInUser || !loggedInUser.id) return favoritos = [];
       if (favoritosCargados && !force) return favoritos;
       try {
-        const res = await fetch(`https://vps5.eas-x.com:13086:3001/favoritos_peliculas?user_id=${loggedInUser.id}`, {
+        const res = await fetch(`https://proyectonode-cjl6.onrender.com:3001/favoritos_peliculas?user_id=${loggedInUser.id}`, {
           headers: { 'Authorization': 'Bearer ' + token }
         });
         favoritos = await res.json();
@@ -654,14 +654,14 @@
       if (!loggedInUser || !loggedInUser.id) return;
       const fav = favoritos.find(f => f.id === pelicula.id);
       if (fav) {
-        await safeFetch('https://vps5.eas-x.com:13086:3001/favoritos_peliculas', {
+        await safeFetch('https://proyectonode-cjl6.onrender.com:3001/favoritos_peliculas', {
           method: 'DELETE',
           headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
           body: JSON.stringify({ user_id: loggedInUser.id, pelicula_id: pelicula.id })
         });
         showToast(`Eliminaste "${pelicula.title}" de favoritos.`, 'success');
       } else {
-        await safeFetch('https://vps5.eas-x.com:13086:3001/favoritos_peliculas', {
+        await safeFetch('https://proyectonode-cjl6.onrender.com:3001/favoritos_peliculas', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
           body: JSON.stringify({ user_id: loggedInUser.id, pelicula })
@@ -680,7 +680,7 @@
       if (!loggedInUser || !loggedInUser.id) return guardados = [];
       if (guardadosCargados && !force) return guardados;
       try {
-        const res = await fetch(`https://vps5.eas-x.com:13086:3001/guardados_peliculas?user_id=${loggedInUser.id}`, {
+        const res = await fetch(`https://proyectonode-cjl6.onrender.com:3001/guardados_peliculas?user_id=${loggedInUser.id}`, {
           headers: { 'Authorization': 'Bearer ' + token }
         });
         guardados = await res.json();
@@ -696,14 +696,14 @@
       if (!loggedInUser || !loggedInUser.id) return;
       const guardado = guardados.find(g => g.id === pelicula.id);
       if (guardado) {
-        await safeFetch('https://vps5.eas-x.com:13086:3001/guardados_peliculas', {
+        await safeFetch('https://proyectonode-cjl6.onrender.com:3001/guardados_peliculas', {
           method: 'DELETE',
           headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
           body: JSON.stringify({ user_id: loggedInUser.id, pelicula_id: pelicula.id })
         });
         showToast(`Eliminaste "${pelicula.title}" de ver más tarde.`, 'success');
       } else {
-        await safeFetch('https://vps5.eas-x.com:13086:3001/guardados_peliculas', {
+        await safeFetch('https://proyectonode-cjl6.onrender.com:3001/guardados_peliculas', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
           body: JSON.stringify({ user_id: loggedInUser.id, pelicula })

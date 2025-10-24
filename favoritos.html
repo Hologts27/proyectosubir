@@ -289,7 +289,7 @@ async function loadFavoritos() {
   let favoritosSeries = [];
   let favoritosPeliculas = [];
   try {
-    const resSeries = await fetch(`https://vps5.eas-x.com:13086/favoritos?user_id=${loggedInUser.id}`, {
+    const resSeries = await fetch(`https://proyectonode-cjl6.onrender.com/favoritos?user_id=${loggedInUser.id}`, {
       headers: { 'Authorization': 'Bearer ' + token }
     });
     favoritosSeries = await resSeries.json();
@@ -297,7 +297,7 @@ async function loadFavoritos() {
     favoritosSeries = [];
   }
   try {
-    const resPeliculas = await fetch(`https://vps5.eas-x.com:13086/favoritos_peliculas?user_id=${loggedInUser.id}`, {
+    const resPeliculas = await fetch(`https://proyectonode-cjl6.onrender.com/favoritos_peliculas?user_id=${loggedInUser.id}`, {
       headers: { 'Authorization': 'Bearer ' + token }
     });
     favoritosPeliculas = await resPeliculas.json();
@@ -347,13 +347,13 @@ async function loadFavoritos() {
 
 async function quitarFavorito(itemId, tipo) {
   if (tipo === 'serie') {
-    await safeFetch('https://vps5.eas-x.com:13086/favoritos', {
+    await safeFetch('https://proyectonode-cjl6.onrender.com/favoritos', {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
       body: JSON.stringify({ user_id: loggedInUser.id, serie_id: Number(itemId) })
     });
   } else {
-    await safeFetch('https://vps5.eas-x.com:13086/favoritos_peliculas', {
+    await safeFetch('https://proyectonode-cjl6.onrender.com/favoritos_peliculas', {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
       body: JSON.stringify({ user_id: loggedInUser.id, pelicula_id: Number(itemId) })

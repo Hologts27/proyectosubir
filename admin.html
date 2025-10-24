@@ -108,7 +108,7 @@
     }
     
     function logout() {
-      fetch('https://vps5.eas-x.com:13086/logout', {
+      fetch('https://proyectonode-cjl6.onrender.com/logout', {
         method: 'POST',
         headers: { 'Authorization': 'Bearer ' + adminToken }
       }).finally(() => {
@@ -124,7 +124,7 @@
       setTimeout(() => t.remove(), duration);
     }
     async function cargarUsuarios() {
-      const res = await fetch('https://vps5.eas-x.com:13086/admin/usuarios', { headers: { Authorization: 'Bearer ' + adminToken } });
+      const res = await fetch('https://proyectonode-cjl6.onrender.com/admin/usuarios', { headers: { Authorization: 'Bearer ' + adminToken } });
       if (!res.ok) return showToast('Error cargando usuarios', 'error');
       const usuarios = await res.json();
       const tbody = document.querySelector('#usuarios-table tbody');
@@ -155,7 +155,7 @@
       const select = document.querySelector(`select[data-id='${userId}']`);
       const nuevoRol = select.value;
       btn.disabled = true;
-      const res = await fetch('https://vps5.eas-x.com:13086/admin/cambiar_rol', {
+      const res = await fetch('https://proyectonode-cjl6.onrender.com/admin/cambiar_rol', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + adminToken },
         body: JSON.stringify({ user_id: userId, role: nuevoRol })
@@ -172,7 +172,7 @@
       const pre = document.getElementById('logs');
       pre.style.display = 'block';
       pre.textContent = 'Cargando...';
-      const res = await fetch('https://vps5.eas-x.com:13086/admin/logs', { headers: { Authorization: 'Bearer ' + adminToken } });
+      const res = await fetch('https://proyectonode-cjl6.onrender.com/admin/logs', { headers: { Authorization: 'Bearer ' + adminToken } });
       if (!res.ok) return showToast('Error cargando logs', 'error');
       pre.textContent = await res.text();
     }
@@ -181,7 +181,7 @@
       cargarLogs();
     });
     document.getElementById('descargar-logs-btn').addEventListener('click', async function() {
-      const res = await fetch('https://vps5.eas-x.com:13086/admin/logs', { headers: { Authorization: 'Bearer ' + adminToken } });
+      const res = await fetch('https://proyectonode-cjl6.onrender.com/admin/logs', { headers: { Authorization: 'Bearer ' + adminToken } });
       if (!res.ok) return showToast('Error descargando logs', 'error');
       const blob = new Blob([await res.text()], { type: 'text/plain' });
       const url = URL.createObjectURL(blob);
@@ -195,7 +195,7 @@
     });
     document.getElementById('limpiar-logs-btn').addEventListener('click', async function() {
       if (!confirm('¿Seguro que deseas limpiar los logs?')) return;
-      const res = await fetch('https://vps5.eas-x.com:13086/admin/limpiar_logs', { method: 'POST', headers: { Authorization: 'Bearer ' + adminToken } });
+      const res = await fetch('https://proyectonode-cjl6.onrender.com/admin/limpiar_logs', { method: 'POST', headers: { Authorization: 'Bearer ' + adminToken } });
       if (res.ok) {
         showToast('Logs limpiados', 'success');
         document.getElementById('logs').textContent = '';
@@ -245,7 +245,7 @@
         return;
       }
       try {
-        const res = await fetch('https://vps5.eas-x.com:13086/admin/reset_password', {
+        const res = await fetch('https://proyectonode-cjl6.onrender.com/admin/reset_password', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + adminToken },
           body: JSON.stringify({ user_id: resetUserId, new_password: pass })
@@ -274,7 +274,7 @@
       const tr = btn.closest('tr');
       tr.classList.add('fade-out');
       setTimeout(async () => {
-        const res = await fetch('https://vps5.eas-x.com:13086/admin/eliminar_usuario', {
+        const res = await fetch('https://proyectonode-cjl6.onrender.com/admin/eliminar_usuario', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + adminToken },
           body: JSON.stringify({ user_id: userId })
