@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Panel de Administración</title>
+  <style>
+    body { background: #181818; color: #eee; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; }
+    header { background: #1c1c1c; color: #e50914; font-size: 2rem; padding: 20px; text-align: center; }
+    main { max-width: 900px; margin: 30px auto; background: #232323; border-radius: 10px; padding: 30px; box-shadow: 0 0 20px #000a; }
+    h2 { color: #43e97b; margin-top: 0; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+    th, td { padding: 10px; border-bottom: 1px solid #333; text-align: left; }
+    th { color: #e50914; }
+    tr:last-child td { border-bottom: none; }
+    .btn { background: #e50914; color: #fff; border: none; border-radius: 5px; padding: 7px 16px; font-weight: bold; cursor: pointer; transition: background 0.2s; }
+    .btn:hover { background: #b20710; }
+    .btn-danger { background: #b20710; color: #fff; }
+    .btn-danger:hover { background: #e50914; }
+    .role-select { background: #232323; color: #eee; border: 1px solid #444; border-radius: 4px; padding: 4px 8px; }
+    .toast { position: fixed; top: 30px; right: 30px; background: #232323; color: #fff; padding: 16px 24px; border-radius: 8px; font-size: 1rem; box-shadow: 0 2px 12px #e5091429; opacity: 0.97; z-index: 9999; }
+    .toast-success { background: linear-gradient(90deg, #43e97b 0%, #38f9d7 100%); color: #222; }
+    .toast-error { background: linear-gradient(90deg, #e50914 60%, #b20710 100%); color: #fff; }
+    pre { background: #111; color: #43e97b; padding: 15px; border-radius: 8px; overflow-x: auto; }
+    .modal-fade {
+      opacity: 0;
+      transform: scale(0.98) translateY(30px);
+      transition: opacity 0.35s cubic-bezier(.4,0,.2,1), transform 0.35s cubic-bezier(.4,0,.2,1);
+      pointer-events: none;
+    }
+    .modal-fade.active {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+      pointer-events: auto;
+    }
+    .btn-anim {
+      transition: background 0.2s, transform 0.18s cubic-bezier(.4,0,.2,1);
+    }
+    .btn-anim:active {
+      transform: scale(0.96);
+    }
+    .fade-in {
+      animation: fadeIn 0.4s cubic-bezier(.4,0,.2,1);
+    }
+    .fade-out {
+      animation: fadeOut 0.3s cubic-bezier(.4,0,.2,1) forwards;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.98) translateY(30px); }
+      to { opacity: 1; transform: none; }
+    }
+    @keyframes fadeOut {
+      from { opacity: 1; transform: none; }
+      to { opacity: 0; transform: scale(0.98) translateY(30px); }
+    }
+  </style>
+</head>
+<body>
+  <header>Panel de Administración</header>
+  <main>
+    <h2>Usuarios</h2>
+    <table id="usuarios-table">
+      <thead>
+        <tr><th>ID</th><th>Usuario</th><th>Email</th><th>Rol</th><th>Acción</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <!-- Modal para resetear contraseña -->
+    <div id="modal-reset-bg" class="modal-fade" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:#000a;z-index:10000;align-items:center;justify-content:center;">
+      <div id="modal-reset-content" style="background:#232323;padding:30px 24px;border-radius:10px;min-width:320px;max-width:90vw;box-shadow:0 0 20px #000a;">
+        <h3 style="color:#e50914;margin-top:0;">Resetear contraseña</h3>
+        <div style="margin-bottom:12px;">
+          <input id="reset-pass-input" type="password" placeholder="Nueva contraseña" style="width:100%;padding:8px 10px;border-radius:5px;border:1px solid #444;background:#181818;color:#eee;" />
+        </div>
+        <div style="margin-bottom:12px;">
+          <input id="reset-pass-confirm" type="password" placeholder="Confirmar contraseña" style="width:100%;padding:8px 10px;border-radius:5px;border:1px solid #444;background:#181818;color:#eee;" />
+        </div>
+        <div style="display:flex;gap:10px;justify-content:flex-end;">
+          <button class="btn btn-anim" id="reset-pass-cancel">Cancelar</button>
+          <button class="btn btn-anim" id="reset-pass-confirm-btn">Resetear</button>
+        </div>
+        <div id="reset-pass-msg" style="color:#e50914;margin-top:10px;"></div>
+      </div>
+    </div>
+
+    <h2>Logs de Acceso</h2>
+    <button class="btn" id="ver-logs-btn">Ver logs</button>
+    <button class="btn" id="descargar-logs-btn">Descargar logs</button>
+    <button class="btn btn-danger" id="limpiar-logs-btn">Limpiar logs</button>
+    <pre id="logs" style="display:none;"></pre>
+  </main>
+  <div id="toast-container"></div>
+  <script>
+    
+    const adminToken = localStorage.getItem('adminToken');
+    let adminRole = null;
+    if (adminToken) {
+      try {
+        
+        const payload = JSON.parse(atob(adminToken.split('.')[1]));
+        adminRole = payload.role;
+      } catch {}
+    }
+    if (!adminToken || adminRole !== 'admin') {
+      alert('Acceso solo para administradores.');
+      window.location.href = 'index.html';
+    }
+    
+    function logout() {
+      fetch('http://localhost:3001/logout', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + adminToken }
+      }).finally(() => {
+        localStorage.removeItem('adminToken');
+        window.location.href = 'index.html';
+      });
+    }
+    function showToast(msg, type = 'info', duration = 3500) {
+      const t = document.createElement('div');
+      t.className = 'toast toast-' + type;
+      t.textContent = msg;
+      document.getElementById('toast-container').appendChild(t);
+      setTimeout(() => t.remove(), duration);
+    }
+    async function cargarUsuarios() {
+      const res = await fetch('http://localhost:3001/admin/usuarios', { headers: { Authorization: 'Bearer ' + adminToken } });
+      if (!res.ok) return showToast('Error cargando usuarios', 'error');
+      const usuarios = await res.json();
+      const tbody = document.querySelector('#usuarios-table tbody');
+      tbody.innerHTML = '';
+      usuarios.forEach(u => {
+        const tr = document.createElement('tr');
+        tr.className = 'fade-in';
+        tr.innerHTML = `
+          <td>${u.id}</td>
+          <td>${u.username}</td>
+          <td>${u.email}</td>
+          <td>
+            <select class="role-select" data-id="${u.id}" value="${u.role}">
+              <option value="user" ${u.role === 'user' ? 'selected' : ''}>user</option>
+              <option value="admin" ${u.role === 'admin' ? 'selected' : ''}>admin</option>
+            </select>
+          </td>
+          <td style="display:flex;gap:6px;">
+            <button class="btn btn-anim" onclick="cambiarRol(${u.id}, this)">Actualizar</button>
+            <button class="btn btn-anim" style="background:#444;" onclick="abrirResetModal(${u.id}, '${u.username}')">Resetear contraseña</button>
+            <button class="btn btn-danger btn-anim" onclick="eliminarUsuario(${u.id}, this)">Eliminar</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+    async function cambiarRol(userId, btn) {
+      const select = document.querySelector(`select[data-id='${userId}']`);
+      const nuevoRol = select.value;
+      btn.disabled = true;
+      const res = await fetch('http://localhost:3001/admin/cambiar_rol', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + adminToken },
+        body: JSON.stringify({ user_id: userId, role: nuevoRol })
+      });
+      if (res.ok) {
+        showToast('Rol actualizado', 'success');
+        cargarUsuarios();
+      } else {
+        showToast('Error al actualizar rol', 'error');
+      }
+      btn.disabled = false;
+    }
+    async function cargarLogs() {
+      const pre = document.getElementById('logs');
+      pre.style.display = 'block';
+      pre.textContent = 'Cargando...';
+      const res = await fetch('http://localhost:3001/admin/logs', { headers: { Authorization: 'Bearer ' + adminToken } });
+      if (!res.ok) return showToast('Error cargando logs', 'error');
+      pre.textContent = await res.text();
+    }
+    document.getElementById('ver-logs-btn').addEventListener('click', function(e) {
+      e.preventDefault();
+      cargarLogs();
+    });
+    document.getElementById('descargar-logs-btn').addEventListener('click', async function() {
+      const res = await fetch('http://localhost:3001/admin/logs', { headers: { Authorization: 'Bearer ' + adminToken } });
+      if (!res.ok) return showToast('Error descargando logs', 'error');
+      const blob = new Blob([await res.text()], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'access.log';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    });
+    document.getElementById('limpiar-logs-btn').addEventListener('click', async function() {
+      if (!confirm('¿Seguro que deseas limpiar los logs?')) return;
+      const res = await fetch('http://localhost:3001/admin/limpiar_logs', { method: 'POST', headers: { Authorization: 'Bearer ' + adminToken } });
+      if (res.ok) {
+        showToast('Logs limpiados', 'success');
+        document.getElementById('logs').textContent = '';
+      } else {
+        showToast('Error al limpiar logs', 'error');
+      }
+    });
+    
+    let resetUserId = null;
+    function abrirResetModal(userId, username) {
+      resetUserId = userId;
+      document.getElementById('reset-pass-input').value = '';
+      document.getElementById('reset-pass-confirm').value = '';
+      document.getElementById('reset-pass-msg').textContent = '';
+      const modalBg = document.getElementById('modal-reset-bg');
+      const modalContent = document.getElementById('modal-reset-content');
+      modalBg.style.display = 'flex';
+      setTimeout(() => modalBg.classList.add('active'), 10);
+      modalContent.classList.remove('fade-out');
+      modalContent.classList.add('fade-in');
+    }
+    document.getElementById('reset-pass-cancel').onclick = function() {
+      const modalBg = document.getElementById('modal-reset-bg');
+      const modalContent = document.getElementById('modal-reset-content');
+      modalContent.classList.remove('fade-in');
+      modalContent.classList.add('fade-out');
+      setTimeout(() => {
+        modalBg.classList.remove('active');
+        modalBg.style.display = 'none';
+      }, 300);
+    };
+    document.getElementById('reset-pass-confirm-btn').onclick = async function() {
+      const pass = document.getElementById('reset-pass-input').value;
+      const pass2 = document.getElementById('reset-pass-confirm').value;
+      const msg = document.getElementById('reset-pass-msg');
+      msg.textContent = '';
+      if (!pass || !pass2) {
+        msg.textContent = 'Completa ambos campos.';
+        return;
+      }
+      if (pass !== pass2) {
+        msg.textContent = 'Las contraseñas no coinciden.';
+        return;
+      }
+      if (!validarSeguridad(pass)) {
+        msg.textContent = 'Mínimo 8 caracteres, una mayúscula, un número y un símbolo.';
+        return;
+      }
+      try {
+        const res = await fetch('http://localhost:3001/admin/reset_password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + adminToken },
+          body: JSON.stringify({ user_id: resetUserId, new_password: pass })
+        });
+        if (res.ok) {
+          showToast('Contraseña reseteada', 'success');
+          document.getElementById('modal-reset-bg').style.display = 'none';
+        } else {
+          const data = await res.json();
+          msg.textContent = data.error || 'Error al resetear contraseña.';
+        }
+      } catch {
+        msg.textContent = 'Error de conexión.';
+      }
+    };
+    function validarSeguridad(contra) {
+      const minLargo = contra.length >= 8;
+      const mayus = /[A-Z]/.test(contra);
+      const numero = /[0-9]/.test(contra);
+      const simbolo = /[^A-Za-z0-9]/.test(contra);
+      return minLargo && mayus && numero && simbolo;
+    }
+    async function eliminarUsuario(userId, btn) {
+      if (!confirm('¿Seguro que deseas eliminar este usuario?')) return;
+      btn.disabled = true;
+      const tr = btn.closest('tr');
+      tr.classList.add('fade-out');
+      setTimeout(async () => {
+        const res = await fetch('http://localhost:3001/admin/eliminar_usuario', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + adminToken },
+          body: JSON.stringify({ user_id: userId })
+        });
+        if (res.ok) {
+          showToast('Usuario eliminado', 'success');
+          tr.remove();
+        } else {
+          showToast('Error al eliminar usuario', 'error');
+          tr.classList.remove('fade-out');
+        }
+        btn.disabled = false;
+      }, 250);
+    }
+    cargarUsuarios();
+
+    
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').catch(() => {});
+      });
+    }
+    if (!document.querySelector('link[rel="manifest"]')) {
+      const link = document.createElement('link');
+      link.rel = 'manifest';
+      link.href = 'manifest.json';
+      document.head.appendChild(link);
+    }
+  </script>
+</body>
+</html>

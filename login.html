@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Iniciar Sesión | Catálogo de Películas y Series</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#121212">
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js');
+      });
+    }
+  </script>
+  <style>
+    body {
+      background-color: #121212;
+      color: #fff;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .container {
+      background-color: #1e1e1e;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 0 25px rgba(0, 0, 0, 0.8);
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+    }
+
+    h1 {
+      color: #e50914;
+      margin-bottom: 20px;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 6px;
+      background-color: #333;
+      color: #fff;
+      font-size: 16px;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 12px;
+      margin-top: 15px;
+      background-color: #e50914;
+      border: none;
+      border-radius: 6px;
+      color: #fff;
+      font-weight: bold;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .btn:hover {
+      background-color: #b20710;
+    }
+
+    #message {
+      margin-top: 15px;
+      font-weight: bold;
+      min-height: 24px;
+      color: #ff4444;
+    }
+
+    /* Toast notification styles */
+    #toast-container {
+      position: fixed;
+      top: 30px;
+      right: 30px;
+      z-index: 99999;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      pointer-events: none;
+    }
+    .toast {
+      min-width: 220px;
+      max-width: 350px;
+      background: #232323;
+      color: #fff;
+      padding: 16px 24px;
+      border-radius: 8px;
+      font-size: 1rem;
+      box-shadow: 0 2px 12px rgba(229,9,20,0.18);
+      opacity: 0.97;
+      pointer-events: auto;
+      transition: opacity 0.3s, transform 0.3s;
+      animation: toastIn 0.3s, toastOut 0.3s 2.7s;
+    }
+    .toast-success { background: linear-gradient(90deg, #43e97b 0%, #38f9d7 100%); color: #222; }
+    .toast-error { background: linear-gradient(90deg, #e50914 60%, #b20710 100%); color: #fff; }
+    .toast-info { background: linear-gradient(90deg, #232526 0%, #414345 100%); color: #fff; }
+    .toast.hide {
+      opacity: 0;
+      transform: translateY(-20px) scale(0.98);
+      transition: opacity 0.3s, transform 0.3s;
+    }
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateY(-20px) scale(0.98); }
+      to { opacity: 0.97; transform: none; }
+    }
+    @keyframes toastOut {
+      to { opacity: 0; transform: translateY(-20px) scale(0.98); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Iniciar Sesión</h1>
+
+    <input type="text" id="username" placeholder="Usuario" autocomplete="username" />
+    <input type="password" id="password" placeholder="Contraseña" autocomplete="current-password" />
+    
+    <button class="btn" onclick="login()">Entrar</button>
+
+    <div id="message"></div>
+
+    <p style="margin-top: 20px; color: #ccc;">
+      ¿No tienes cuenta? <a href="register.html" style="color:#e50914; text-decoration:none;">Regístrate aquí</a>
+    </p>
+  </div>
+
+  <!-- Toast notification container -->
+  <div id="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+  <script>
+    // Si ya está logeado, redirigir a dash.html
+    if(localStorage.getItem("loggedInUser")) {
+      window.location.href = "dash.html";
+    }
+
+    function login() {
+      const username = document.getElementById("username").value.trim();
+      const password = document.getElementById("password").value;
+      const message = document.getElementById("message");
+      message.style.color = "#ff4444";
+
+      if (!username && !password) {
+        message.textContent = "Por favor, ingresa tu usuario y contraseña.";
+        return;
+      }
+      if (!username) {
+        message.textContent = "El campo de usuario está vacío.";
+        return;
+      }
+      if (!password) {
+        message.textContent = "El campo de contraseña está vacío.";
+        return;
+      }
+
+      fetch('http://localhost:3001/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.ok && data.user) {
+          // Guardar usuario logeado (guardar id y username)
+          localStorage.setItem("loggedInUser", JSON.stringify(data.user));
+          // Guardar JWT SIEMPRE para rutas protegidas
+          localStorage.setItem("jwt", data.token);
+          // Guardar token para admin.html si es admin
+          if (data.user.role === 'admin') {
+            localStorage.setItem("adminToken", data.token);
+          } else {
+            localStorage.removeItem("adminToken");
+          }
+          window.location.href = "dash.html";
+        } else {
+          // Mensajes custom según error del backend
+          if (data && data.error) {
+            if (data.error.includes('Datos incompletos')) {
+              message.textContent = "Debes completar usuario y contraseña.";
+            } else if (data.error.includes('Usuario o contraseña incorrectos')) {
+              message.textContent = "Usuario o contraseña incorrectos.";
+            } else {
+              message.textContent = data.error;
+            }
+          } else {
+            message.textContent = "Error de autenticación.";
+          }
+        }
+      })
+      .catch(() => {
+        message.textContent = "Error de conexión con el servidor.";
+      });
+    }
+
+    // Toast notification system
+    function showToast(message, type = 'info', duration = 3500) {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = `toast toast-${type}`;
+      toast.textContent = message;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.classList.add('hide');
+        toast.addEventListener('transitionend', () => toast.remove());
+      }, duration);
+    }
+
+    // Safe fetch wrapper for error handling
+    async function safeFetch(url, options = {}) {
+      try {
+        const res = await fetch(url, options);
+        if (!res.ok) {
+          let errMsg = `Error ${res.status}`;
+          try {
+            const data = await res.json();
+            errMsg = data.error || errMsg;
+          } catch {}
+          throw new Error(errMsg);
+        }
+        return await res.json();
+      } catch (err) {
+        showToast(err.message || 'Error de conexión con el servidor.', 'error');
+        throw err;
+      }
+    }
+
+    // Ejemplo de uso en logout:
+    // Reemplaza confirm() por un modal o showToast si lo deseas
+  </script>
+
+</body>
+</html>
