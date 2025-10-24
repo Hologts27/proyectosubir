@@ -607,7 +607,7 @@
         return `
           <article class="card" tabindex="0" aria-label="Película: ${p.title}" data-movie-id="${p.id}">
             <button class="fav-star-btn ${esFavorito ? 'favorito' : ''}" aria-pressed="${esFavorito}" aria-label="${esFavorito ? 'Eliminar de favoritos' : 'Agregar a favoritos'}" data-id="${p.id}">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="${esFavorito ? '#f1c40f' : 'none'}" stroke="${esFavorito ? '#f1c40f' : '#eee'}" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <svg xmlns="https://www.w3.org/2000/svg" fill="${esFavorito ? '#f1c40f' : 'none'}" stroke="${esFavorito ? '#f1c40f' : '#eee'}" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                 <path stroke-linejoin="round" stroke-linecap="round" d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
               </svg>
             </button>

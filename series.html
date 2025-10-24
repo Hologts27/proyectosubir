@@ -674,7 +674,7 @@ async function fetchFavoritos(force = false) {
   if (!loggedInUser || !loggedInUser.id) return favoritos = [];
   if (favoritosCargados && !force) return favoritos;
   try {
-    const res = await safeFetch(`http://vps5.eas-x.com:13086/favoritos?user_id=${loggedInUser.id}`);
+    const res = await safeFetch(`https://vps5.eas-x.com:13086/favoritos?user_id=${loggedInUser.id}`);
     favoritos = res;
     favoritosCargados = true;
   } catch (e) {
@@ -690,14 +690,14 @@ async function toggleFavorito(serie) {
   const fav = favoritos.find(f => f.id === serie.id);
   try {
     if (fav) {
-      await safeFetch('http://vps5.eas-x.com:13086/favoritos', {
+      await safeFetch('https://vps5.eas-x.com:13086/favoritos', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ user_id: loggedInUser.id, serie_id: serie.id })
       });
       showToast(`Eliminaste "${serie.name}" de favoritos.`, 'fail');
     } else {
-      await safeFetch('http://vps5.eas-x.com:13086/favoritos', {
+      await safeFetch('https://vps5.eas-x.com:13086/favoritos', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ user_id: loggedInUser.id, serie })
@@ -719,7 +719,7 @@ async function fetchGuardados(force = false) {
   if (!loggedInUser || !loggedInUser.id) return guardados = [];
   if (guardadosCargados && !force) return guardados;
   try {
-    const res = await safeFetch(`http://vps5.eas-x.com:13086/guardados?user_id=${loggedInUser.id}`);
+    const res = await safeFetch(`https://vps5.eas-x.com:13086/guardados?user_id=${loggedInUser.id}`);
     guardados = res;
     guardadosCargados = true;
   } catch (e) {
@@ -733,14 +733,14 @@ async function toggleGuardado(serie) {
   if (!loggedInUser || !loggedInUser.id) return;
   const guardado = guardados.find(g => g.id === serie.id);
   if (guardado) {
-    await safeFetch('http://vps5.eas-x.com:13086/guardados', {
+    await safeFetch('https://vps5.eas-x.com:13086/guardados', {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
       body: JSON.stringify({ user_id: loggedInUser.id, serie_id: serie.id })
     });
     showToast(`Eliminaste "${serie.name}" de ver más tarde.`, 'success');
   } else {
-    await safeFetch('http://vps5.eas-x.com:13086/guardados', {
+    await safeFetch('https://vps5.eas-x.com:13086/guardados', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
       body: JSON.stringify({ user_id: loggedInUser.id, serie })
@@ -875,7 +875,7 @@ async function toggleGuardado(serie) {
               ${favorito ? '✔' : '☆'}
             </button>
             <button class="bookmark-btn${guardado ? ' guardado' : ''}" aria-pressed="${guardado}" aria-label="${guardado ? 'Quitar de ver más tarde' : 'Guardar para ver más tarde'}" data-id="${s.id}" tabindex="0" style="position:absolute;top:10px;left:10px;background:transparent;border:none;cursor:pointer;padding:0;z-index:2;display:flex;align-items:center;justify-content:center;">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="${guardado ? '#00b3ff' : '#eee'}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg xmlns="https://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="${guardado ? '#00b3ff' : '#eee'}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" fill="${guardado ? '#00b3ff' : 'none'}"/>
               </svg>
             </button>
@@ -933,7 +933,7 @@ function updatePaginationControls() {
 document.getElementById('logout-btn').addEventListener('click', async () => {
   if (token) {
     try {
-      await fetch('http://vps5.eas-x.com:13086/logout', {
+      await fetch('https://vps5.eas-x.com:13086/logout', {
         method: 'POST',
         headers: { 'Authorization': 'Bearer ' + token }
       });
@@ -960,7 +960,7 @@ function showToast(message, type = 'info', duration = 3500) {
 // Safe fetch wrapper para rutas protegidas (igual que peliculas.html)
 async function safeFetch(url, options = {}) {
   options.headers = options.headers || {};
-  if (url.startsWith('http://vps5.eas-x.com:13086')) {
+  if (url.startsWith('https://vps5.eas-x.com:13086')) {
     options.headers['Authorization'] = 'Bearer ' + token;
   }
   try {

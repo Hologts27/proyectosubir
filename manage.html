@@ -320,7 +320,7 @@
     
     async function safeFetch(url, options = {}) {
       options.headers = options.headers || {};
-      if (url.startsWith('http://vps5.eas-x.com:13086')) {
+      if (url.startsWith('https://vps5.eas-x.com:13086')) {
         options.headers['Authorization'] = 'Bearer ' + jwt;
       }
       try {
@@ -354,7 +354,7 @@
         return;
       }
       try {
-        const data = await safeFetch('http://vps5.eas-x.com:13086/update_email', {
+        const data = await safeFetch('https://vps5.eas-x.com:13086/update_email', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ user_id: usuario.id, email: nuevoCorreo })
@@ -412,7 +412,7 @@
       }
       showConfirmModal('¿Confirmas cambiar tu contraseña?', async () => {
         try {
-          const data = await safeFetch('http://vps5.eas-x.com:13086/update_password', {
+          const data = await safeFetch('https://vps5.eas-x.com:13086/update_password', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ user_id: usuario.id, old_password: actual, new_password: nueva })
@@ -433,7 +433,7 @@
     document.getElementById('logout-btn').addEventListener('click', async () => {
       if (jwt) {
         try {
-          await fetch('http://vps5.eas-x.com:13086/logout', {
+          await fetch('https://vps5.eas-x.com:13086/logout', {
             method: 'POST',
             headers: { 'Authorization': 'Bearer ' + jwt }
           });

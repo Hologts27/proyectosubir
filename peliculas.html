@@ -638,7 +638,7 @@
       if (!loggedInUser || !loggedInUser.id) return favoritos = [];
       if (favoritosCargados && !force) return favoritos;
       try {
-        const res = await fetch(`http://vps5.eas-x.com:13086:3001/favoritos_peliculas?user_id=${loggedInUser.id}`, {
+        const res = await fetch(`https://vps5.eas-x.com:13086:3001/favoritos_peliculas?user_id=${loggedInUser.id}`, {
           headers: { 'Authorization': 'Bearer ' + token }
         });
         favoritos = await res.json();
@@ -654,14 +654,14 @@
       if (!loggedInUser || !loggedInUser.id) return;
       const fav = favoritos.find(f => f.id === pelicula.id);
       if (fav) {
-        await safeFetch('http://vps5.eas-x.com:13086:3001/favoritos_peliculas', {
+        await safeFetch('https://vps5.eas-x.com:13086:3001/favoritos_peliculas', {
           method: 'DELETE',
           headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
           body: JSON.stringify({ user_id: loggedInUser.id, pelicula_id: pelicula.id })
         });
         showToast(`Eliminaste "${pelicula.title}" de favoritos.`, 'success');
       } else {
-        await safeFetch('http://vps5.eas-x.com:13086:3001/favoritos_peliculas', {
+        await safeFetch('https://vps5.eas-x.com:13086:3001/favoritos_peliculas', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
           body: JSON.stringify({ user_id: loggedInUser.id, pelicula })
@@ -680,7 +680,7 @@
       if (!loggedInUser || !loggedInUser.id) return guardados = [];
       if (guardadosCargados && !force) return guardados;
       try {
-        const res = await fetch(`http://vps5.eas-x.com:13086:3001/guardados_peliculas?user_id=${loggedInUser.id}`, {
+        const res = await fetch(`https://vps5.eas-x.com:13086:3001/guardados_peliculas?user_id=${loggedInUser.id}`, {
           headers: { 'Authorization': 'Bearer ' + token }
         });
         guardados = await res.json();
@@ -696,14 +696,14 @@
       if (!loggedInUser || !loggedInUser.id) return;
       const guardado = guardados.find(g => g.id === pelicula.id);
       if (guardado) {
-        await safeFetch('http://vps5.eas-x.com:13086:3001/guardados_peliculas', {
+        await safeFetch('https://vps5.eas-x.com:13086:3001/guardados_peliculas', {
           method: 'DELETE',
           headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
           body: JSON.stringify({ user_id: loggedInUser.id, pelicula_id: pelicula.id })
         });
         showToast(`Eliminaste "${pelicula.title}" de ver más tarde.`, 'success');
       } else {
-        await safeFetch('http://vps5.eas-x.com:13086:3001/guardados_peliculas', {
+        await safeFetch('https://vps5.eas-x.com:13086:3001/guardados_peliculas', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
           body: JSON.stringify({ user_id: loggedInUser.id, pelicula })
@@ -727,12 +727,12 @@
         return `
           <article class="card" tabindex="0" aria-label="Película: ${p.title}" data-movie-id="${p.id}">
             <button class="fav-star-btn ${favorito ? 'favorito' : ''}" aria-pressed="${favorito}" aria-label="${favorito ? 'Eliminar de favoritos' : 'Agregar a favoritos'}" data-id="${p.id}">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="${favorito ? '#f1c40f' : 'none'}" stroke="${favorito ? '#f1c40f' : '#eee'}" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <svg xmlns="https://www.w3.org/2000/svg" fill="${favorito ? '#f1c40f' : 'none'}" stroke="${favorito ? '#f1c40f' : '#eee'}" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                 <path stroke-linejoin="round" stroke-linecap="round" d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
               </svg>
             </button>
             <button class="bookmark-btn${guardado ? ' guardado' : ''}" aria-pressed="${guardado}" aria-label="${guardado ? 'Quitar de ver más tarde' : 'Guardar para ver más tarde'}" data-id="${p.id}" tabindex="0" style="position:absolute;top:10px;left:10px;background:transparent;border:none;cursor:pointer;padding:0;z-index:2;display:flex;align-items:center;justify-content:center;">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="${guardado ? '#00b3ff' : '#eee'}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg xmlns="https://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="${guardado ? '#00b3ff' : '#eee'}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" fill="${guardado ? '#00b3ff' : 'none'}"/>
               </svg>
             </button>
